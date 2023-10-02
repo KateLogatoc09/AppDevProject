@@ -1,45 +1,76 @@
 <?php
 
 namespace App\Controllers;
-use App\Models\MusicModel;
-use App\Controllers\BaseController;
 
 class MusicController extends BaseController
 {
     private $music;
+    private $playlist;
+    private $addtoplay;
 
     public function __construct()
     {
-        $this->music = new \App\Models\MusicModel();
+        $this->music = new \App\Models\MainModel;
+        $this->playlist = new \App\Models\PlaylistModel;   
+        $this->addtoplay = new \App\Models\PlayliAudModel;      
     }
 
-    public function music($music)
+    public function addAudio()
     {
-        echo $music;
-    }
+        if ($file = $this->request->getFile('audio')) {
+            $destination = './music';
+            $file->move($destination);
+            $audioFileName = $file->getName();
+            $newAudio = [
+                'audio' => $audioFileName,
+            ];
+            $this->music->insert($newAudio);
+        }
+        return redirect()->to('/');
+    }    
 
-    public function Logatoc()
+    public function addPlaylist() 
     {
-        $data = ['music' => $this->music->findAll()];
-        return view('index', $data);
-    }
-
-    public function index()
-    {
-       //
-    }
-
-    public function delete($id)
-    {
-        $this->music->where('id', $id)->delete();
-    }
-
-    public function save()
-    {
-        $data = [
-            'audio' => $this->request->getVar('audio')
+        $addPlaylist = [
+            'playlistName' => $this->request->getPost('playlistName'),
         ];
-        $this->music->save($data);
+        if (!empty($addPlaylist['playlistName'])) 
+        {
+            $this->playlist->insert($addPlaylist);
+        }
         return redirect()->to('/');
     }
+
+    public function delete($playlistId)
+    {
+        $this->playlist->delete($playlistId);
+        return redirect()->to('/');
+    }
+
+    public function addToPlaylist() 
+    {
+        $addToPlaylist = [
+            'playlistId' => $this->request->getPost('playlistId'),
+            'audioId' => $this->request->getPost('audioId'),
+        ];        
+        if (!empty($addToPlaylist['playlistId']) && !empty($addToPlaylist['audioId'])) 
+        {
+            $this->addtoplay->insert($addToPlaylist);
+        }
+        return redirect()->to('/');
+    }
+
+    public function index() 
+    {
+        $data = [
+            'allAudio' => $this->music->findAll(),
+            'playlists' => $this->playlist->findAll(),
+        ];
+        
+        $data['music'] = $this->playlist->findAll();
+        $data['playlist'] = $this->music->findAll(); 
+
+        return view('index', $data);
+    }
 }
+

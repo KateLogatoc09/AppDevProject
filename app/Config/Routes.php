@@ -5,6 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'MusicController::Logatoc');
-$routes->post('/save', 'MusicController::save');
-$routes->get('/delete/(:any)', 'MainController::delete/$1');
+$routes->get('/', 'MusicController::index');
+$routes->post('/addAudio', 'MusicController::addAudio');
+$routes->post('/addPlaylist', 'MusicController::addPlaylist');
+$routes->get('/delete/(:any)', 'MusicController::delete/$1');
+$routes->post('/addToPlaylist', 'MusicController::addToPlaylist');
